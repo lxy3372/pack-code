@@ -65,8 +65,8 @@ class Application(wx.Frame):
         self.Close()
 
     def on_zip(self, event):
-        print self.dic_picker1.GetTextCtrlValue()
-        print self.dic_picker2.GetTextCtrlValue()
+        print self.dic_picker1.GetPath()
+        print self.dic_picker2.GetPath()
         print self.dir_list.GetValue()
         print self.pwd.GetValue()
         dlg = wx.MessageDialog(None, "打包成功", "提示", wx.YES_DEFAULT)
