@@ -17,10 +17,10 @@ class Application(wx.Frame):
 
     def init_menu(self):
         menu_bar = wx.MenuBar()
-        filem = wx.Menu()
+        icon = wx.Icon("./bitmaps/zip.ico", wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
         helpm = wx.Menu()
-        menu_bar.Append(filem, '&File')
-        menu_bar.Append(helpm, '&Help')
+        menu_bar.Append(helpm, '&关于')
 
         self.SetMenuBar(menu_bar)
 
