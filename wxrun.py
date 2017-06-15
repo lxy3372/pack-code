@@ -4,6 +4,7 @@
 __author__ = "Ricky"
 
 import wx
+from pack import *
 
 
 class Application(wx.Frame):
@@ -26,22 +27,24 @@ class Application(wx.Frame):
     def init_panel(self):
         panel = wx.Panel(self, -1)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        boxs = wx.FlexGridSizer(6, 2, 9, 25)
+        boxs = wx.FlexGridSizer(7, 2, 9, 25)
 
         source_title = wx.StaticText(panel, label="项目地址：")
         des_title = wx.StaticText(panel, label="打包目录：")
         list_title = wx.StaticText(panel, label="打包列表：")
+        file_name_title = wx.StaticText(panel, label="打包名称：")
         pass_title = wx.StaticText(panel, label="加密密码:")
 
         self.dic_picker1 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dic_picker2 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dir_list = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
-        self.pwd = wx.TextCtrl(panel)
+        self.pwd = wx.TextCtrl(panel, -1, "暂不可用")
+        self.file_name = wx.TextCtrl(panel, -1 ,"pack.zip")
 
 
         boxs.AddMany(
             [(source_title), (self.dic_picker1, 1, wx.EXPAND), (des_title), (self.dic_picker2, 1, wx.EXPAND),  (list_title, 1, wx.EXPAND),
-             (self.dir_list, 1, wx.EXPAND), (pass_title), (self.pwd, 1, wx.EXPAND)])
+             (self.dir_list, 1, wx.EXPAND),(file_name_title), (self.file_name, 1, wx.EXPAND), (pass_title), (self.pwd, 1, wx.EXPAND)])
 
         boxs.AddGrowableRow(2, 1)
         boxs.AddGrowableCol(1, 1)
@@ -65,11 +68,24 @@ class Application(wx.Frame):
         self.Close()
 
     def on_zip(self, event):
-        print self.dic_picker1.GetPath()
-        print self.dic_picker2.GetPath()
-        print self.dir_list.GetValue()
-        print self.pwd.GetValue()
-        dlg = wx.MessageDialog(None, "打包成功", "提示", wx.YES_DEFAULT)
+
+        try:
+            p = Pack()
+            p.set_source_dir(self.dic_picker1.GetPath())
+            p.set_des_dir(self.dic_picker2.GetPath(), self.file_name.GetValue())
+            file_line = self.dir_list.GetValue().split('\n')
+            p.set_pack_list(file_line)
+            p.set_pwd(self.pwd.GetValue())
+            p.pack()
+        except FileNotFound as e:
+            title = e.message
+        except DirNotFound as e:
+            title = e.message
+        except Exception as e:
+            title = "打包出错了"
+        else:
+            title = "打包成功"
+        dlg = wx.MessageDialog(None, title, "提示", wx.YES_DEFAULT)
         if dlg.ShowModal() == wx.ID_YES:
             self.Close(True)
         dlg.Destroy()
