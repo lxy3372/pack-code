@@ -2,7 +2,7 @@
 
 ---
 
-##使用说明
+## 使用说明
 
 简单打包增量发布的源代码，说明：
 
@@ -18,12 +18,12 @@
 
 ![截图](./screenshot.png)
 
-##依赖
+## 依赖
 
 ```bash
 #py2exe 包在pypi上未能找到
 pip install http://sourceforge.net/projects/py2exe/files/latest/download?source=files
 ```
 
-##关于加密
+## 关于加密
 由于使用的`zipfile`模块，并不支持打包加密，暂未实现。正在想办法解决中
