@@ -5,6 +5,7 @@ __author__ = "Ricky"
 
 import wx
 from pack import *
+import platform
 
 
 class Application(wx.Frame):
@@ -77,6 +78,7 @@ class Application(wx.Frame):
             p.set_pack_list(file_line)
             p.set_pwd(self.pwd.GetValue())
             p.pack()
+            self.set_password(123, p.des_dir+os.sep+p.file_name)
         except FileNotFound as e:
             title = e.message
         except DirNotFound as e:
@@ -89,6 +91,14 @@ class Application(wx.Frame):
         if dlg.ShowModal() == wx.ID_YES:
             self.Close(True)
         dlg.Destroy()
+
+    def set_password(self, pwd, file_path):
+        system = platform.system()
+        if system == "Windows":
+            pass
+        else:
+            pass
+
 
 if __name__ == '__main__':
     app = wx.App()
