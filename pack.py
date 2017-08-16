@@ -4,6 +4,7 @@
 
 import zipfile
 import os
+import subprocess
 
 __author__ = "Ricky"
 
@@ -51,6 +52,10 @@ class Pack(zipfile.ZipInfo):
         z = zipfile.ZipFile(self.des_dir + os.path.sep + self.file_name, 'w')
         for file in self.file_list:
             file_path = self.source_dir + os.path.sep + file
+            ret = subprocess.Popen('php -l D:/test.php', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+            ret.wait()
+            if ret.returncode != 0:
+                raise PHPSyntaxError("Syntax error:"+file)
             z.write(file_path, file)
         if self.pwd is not None:
             z.setpassword(self.pwd)
@@ -81,6 +86,11 @@ class DirNotFound(Exception):
 
 
 class FileNotFound(Exception):
+    def __init__(self, err):
+        Exception.__init__(self)
+        self.message = err
+
+class PHPSyntaxError(Exception):
     def __init__(self, err):
         Exception.__init__(self)
         self.message = err
