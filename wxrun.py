@@ -41,7 +41,7 @@ class Application(wx.Frame):
         self.dic_picker1 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dic_picker2 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dir_list = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
-        self.pwd = wx.TextCtrl(panel, -1, '')
+        self.pwd = wx.TextCtrl(panel, -1, "")
         self.file_name = wx.TextCtrl(panel, -1, "pack.zip")
 
         boxs.AddMany(
@@ -81,16 +81,24 @@ class Application(wx.Frame):
             p.set_pwd(self.pwd.GetValue())
             p.pack()
             system = platform.system()
-            ignorefile = p.des_dir + os.sep + u'.zipignore'
+            ignorefile = p.des_dir + os.sep + '.zipignore'
             if self.pwd.GetValue() is not None:
+                password = ''
+                f = open(ignorefile, 'w')
+                f.close()
                 if system == "Windows":
-                    open(ignorefile, 'w')
-                    password = ''
                     if(self.pwd.GetValue()):
                         password = ' -p'+self.pwd.GetValue()
                     cmd = '7z u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
-                    cmd_ret = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    cmd_ret.wait()
+                else:
+                    if(self.pwd.GetValue()):
+                        password = ' -P'+self.pwd.GetValue()
+                    cmd = 'zip -u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
+
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                cmd_ret = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                cmd_ret.wait()
                 if cmd_ret.returncode != 0:
                     raise Exception("加密失败")
                     # else:
