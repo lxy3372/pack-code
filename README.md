@@ -8,22 +8,31 @@
 
 1. 项目地址：项目原开发文件夹目录
 2. 打包目录：文件打包到对应目录
-	
 3. 打包列表：需要打包的文件列表，以**项目地址**为根目录的相对地址
-	
 4. 打包名称：打包后压缩包的对应名称以及包类型
-	
-5. 打包加密密码：打包时对应包密码**暂未实现**
+5. 产生.zipignore 说明： 由于zipfile打包无法加密，暂使用一种比较投机的方式，zip u -p 添加密码,故添加了一个无用的`.zipignore`文件
 
 
 ![截图](./screenshot.png)
 
 ## 依赖
 
+#### 包依赖
+
 ```bash
-#py2exe 包在pypi上未能找到
-pip install http://sourceforge.net/projects/py2exe/files/latest/download?source=files
+pip install wxpython
+
+pip install pyinstaller
 ```
 
-## 关于加密
-由于使用的`zipfile`模块，并不支持打包加密，暂未实现。正在想办法解决中
+#### 环境依赖
+
+windows需要安装7z打包工具，并将7z.exe 加入到环境变量中
+Linux/Mac Os 需要安装zip
+
+## 打包
+
+```bash
+pyinstall -F -w  -i ./bitmaps/zip.ico wxrun.py
+```
+
