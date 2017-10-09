@@ -2,7 +2,6 @@
 # -*- encoding=utf-8 -*-
 
 __author__ = "Ricky"
-
 from pack import *
 import wx
 import platform
@@ -41,7 +40,7 @@ class Application(wx.Frame):
         self.dic_picker1 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dic_picker2 = wx.DirPickerCtrl(panel, wx.ID_ANY, wx.EmptyString)
         self.dir_list = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
-        self.pwd = wx.TextCtrl(panel, -1, "")
+        self.pwd = wx.TextCtrl(panel, -1, "vcfez3G0mLZoE0LCjgJG8uvNkYJI53mJ")
         self.file_name = wx.TextCtrl(panel, -1, "pack.zip")
 
         boxs.AddMany(
@@ -90,13 +89,14 @@ class Application(wx.Frame):
                     if(self.pwd.GetValue()):
                         password = ' -p'+self.pwd.GetValue()
                     cmd = '7z u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 else:
                     if(self.pwd.GetValue()):
                         password = ' -P'+self.pwd.GetValue()
                     cmd = 'zip -u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
 
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
                 cmd_ret = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 cmd_ret.wait()
                 if cmd_ret.returncode != 0:
