@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding=utf-8 -*-
+import errno
 
 __author__ = "Ricky"
 from pack import *
@@ -19,8 +20,8 @@ class Application(wx.Frame):
 
     def init_menu(self):
         menu_bar = wx.MenuBar()
-        icon = wx.Icon("./bitmaps/zip.ico", wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
+        # icon = wx.Icon("./bitmaps/zip.ico", wx.BITMAP_TYPE_ICO)
+        # self.SetIcon(icon)
         helpm = wx.Menu()
         menu_bar.Append(helpm, '&关于')
 
@@ -69,42 +70,71 @@ class Application(wx.Frame):
     def on_cancel(self, event):
         self.Close()
 
-    def on_zip(self, event):
+    def on_copy(self, source_dir, desc_dir, files):
+        if not source_dir or not desc_dir:
+            raise FileNotFound("Dir not exists: %s" % file)
 
+        if not os.path.isdir(source_dir):
+            os.mkdir(desc_dir)
+
+        for file in files:
+            source_file = os.path.join(source_dir, file)
+            targe_file = os.path.join(desc_dir, file)
+            targe_dir = os.path.dirname(targe_file)
+            if not os.path.isfile(source_file):
+                raise FileNotFound("File not found: %s" % file)
+            if not os.path.exists(targe_dir):
+                os.mkdir(targe_dir)
+            open(targe_file, 'rb').write(open(source_file, 'rb').read())
+
+    def on_copy(self, source_dir, desc_dir, files):
+        if not source_dir or not desc_dir:
+            raise FileNotFound("Dir not exists: %s" % file)
+        if not os.path.isdir(source_dir):
+            os.mkdir(desc_dir)
+
+        for file in files:
+            source_file = os.path.join(source_dir, file.lstrip(os.sep))
+            targe_file = os.path.join(desc_dir, file.lstrip(os.sep))
+            targe_dir = os.path.dirname(targe_file)
+            if not os.path.isfile(source_file):
+                raise FileNotFound("File not found: %s" % file)
+            if not os.path.exists(targe_dir):
+                try:
+                    os.makedirs(targe_dir)
+                except OSError as exc:
+                    if exc.errno == errno.EEXIST and os.path.isdir(targe_dir):
+                        pass
+                    else:
+                        raise
+            open(targe_file, 'wb').write(open(source_file, 'rb').read())
+
+    def on_zip(self, event):
         try:
-            p = Pack()
-            p.set_source_dir(self.dic_picker1.GetPath())
-            p.set_des_dir(self.dic_picker2.GetPath(), self.file_name.GetValue())
-            file_line = self.dir_list.GetValue().split('\n')
-            p.set_pack_list(file_line)
-            p.set_pwd(self.pwd.GetValue())
-            p.pack()
             system = platform.system()
-            ignorefile = p.des_dir + os.sep + '.zipignore'
+
+            source_dir = self.dic_picker1.GetPath()
+            target_dir = self.dic_picker2.GetPath()
+            tmp_dir = target_dir + os.sep + '.tmp'
+            files = self.dir_list.GetValue().split('\n')
+            self.on_copy(source_dir, tmp_dir, files)
+
             if self.pwd.GetValue() is not None:
                 password = ''
-                f = open(ignorefile, 'w')
-                f.close()
+                if (self.pwd.GetValue()):
+                    password = ' -P' + self.pwd.GetValue()
                 if system == "Windows":
-                    if(self.pwd.GetValue()):
-                        password = ' -p'+self.pwd.GetValue()
-                    cmd = '7z u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    raise Exception("暂未完善")
+                    # cmd = '7z u ' + password + ' ' + p.des_dir + os.sep + p.file_name
+                    # si = subprocess.STARTUPINFO()
+                    # si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 else:
-                    if(self.pwd.GetValue()):
-                        password = ' -P'+self.pwd.GetValue()
-                    cmd = 'zip -u '+password+ ' ' + p.des_dir + os.sep + p.file_name + ' ' + ignorefile
-
+                    cmd = 'cd ' + tmp_dir + ' && zip -r -m' + password + ' ' + target_dir + os.sep + self.file_name.GetValue() + ' * -x */.DS_Store'
 
                 cmd_ret = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 cmd_ret.wait()
                 if cmd_ret.returncode != 0:
                     raise Exception("加密失败")
-                    # else:
-                    # cmd1 = u'7z d -p'+self.pwd.GetValue()+' '+p.des_dir+os.sep+p.file_name+u' .zipignore'
-                    # cmd1_ret = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # cmd1_ret.wait()
         except FileNotFound as e:
             title = e.message
         except DirNotFound as e:
@@ -112,13 +142,14 @@ class Application(wx.Frame):
         except PHPSyntaxError as e:
             title = e.message
         except Exception as e:
-            title = "打包失败"
+            title = e.message
         else:
             title = "打包成功"
         dlg = wx.MessageDialog(None, title, "提示", wx.YES_DEFAULT)
         if dlg.ShowModal() == wx.ID_YES:
             self.Close(True)
         dlg.Destroy()
+        os.rmdir(tmp_dir)
 
 
 if __name__ == '__main__':
