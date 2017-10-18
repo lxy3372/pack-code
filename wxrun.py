@@ -94,8 +94,10 @@ class Application(wx.Frame):
             os.mkdir(desc_dir)
 
         for file in files:
-            source_file = os.path.join(source_dir, file.lstrip(os.sep))
-            targe_file = os.path.join(desc_dir, file.lstrip(os.sep))
+            if (file.lstrip() == ''):
+                continue
+            source_file = os.path.join(source_dir, file.lstrip(os.sep).rstrip())
+            targe_file = os.path.join(desc_dir, file.lstrip(os.sep).rstrip())
             targe_dir = os.path.dirname(targe_file)
             if not os.path.isfile(source_file):
                 raise FileNotFound("File not found: %s" % file)
